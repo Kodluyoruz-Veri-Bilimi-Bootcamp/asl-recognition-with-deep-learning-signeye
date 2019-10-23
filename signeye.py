@@ -1,15 +1,10 @@
 from handtracking import detect_single_threaded
-import threading 
-from multiprocessing.pool import ThreadPool
-pool = ThreadPool(processes=1)
+from keras.models import load_model
 
-def asa():
-	g = detect_single_threaded.detectNcrop()
-	return g
+gen = detect_single_threaded.detectNcrop()
 
-async_result = pool.apply_async(asa) # tuple of args for foo
 
-# do some other stuff in the main process
+model = load_model('signeye_M1.h5')
 
-return_val = async_result.get()
-print(return_val)
+for i in gen:
+    model.predict(i)
