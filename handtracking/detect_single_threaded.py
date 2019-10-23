@@ -100,8 +100,8 @@ def detectNcrop():
         af = detector_utils.detectNcrop(num_hands_detect, args.score_thresh,
                                          scores, boxes, im_width, im_height,
                                          image_np)
-        yield af
         
+    
         # Calculate Frames per second (FPS)
         num_frames += 1
         elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
@@ -124,3 +124,4 @@ def detectNcrop():
                   elapsed_time, "fps: ", str(int(fps)))
    
 
+    return af

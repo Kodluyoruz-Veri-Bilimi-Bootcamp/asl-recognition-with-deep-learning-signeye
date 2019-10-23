@@ -9,7 +9,10 @@ from datetime import datetime
 import cv2
 from . import label_map_util
 from collections import defaultdict
+from keras.models import load_model
+from keras.preprocessing import image
 
+loaded_model = load_model("signeye_M1.h5")
 
 detection_graph = tf.Graph()
 sys.path.append("..")
@@ -62,9 +65,29 @@ def detectNcrop(num_hands_detect, score_thresh, scores, boxes, im_width, im_heig
             
             # crop_img = image_np[y:y+h, x:x+w]
             crop_img = image_np[int(top):int(bottom), int(left):int(right)].copy()
-            cv2.imshow("cropped", crop_img)
-            cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
+            cnn_img = crop_img/255.0
             
+            cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
+            cv2.imwrite("tmp.jpg", cnn_img)
+           
+                
+            image_path="tmp.jpg"
+            img = image.load_img(image_path, target_size=(50, 50))
+            img = np.expand_dims(img, axis=0)
+
+            
+
+            result=loaded_model.predict_classes(img)
+            if(result[0] == 0):
+                r = "A"
+            elif(result[0] == 1):
+                r = "B"
+            elif(result[0] == 2):
+                r = "C"
+
+            cv2.imshow(r, crop_img)
+            print(result)
+
             return crop_img
       
             
