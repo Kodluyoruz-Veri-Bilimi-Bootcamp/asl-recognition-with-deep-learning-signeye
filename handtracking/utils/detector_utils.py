@@ -12,7 +12,7 @@ from collections import defaultdict
 from keras.models import load_model
 from keras.preprocessing import image
 
-loaded_model = load_model("signeye_M1.h5")
+loaded_model = load_model("signeye_M3.h5")
 
 detection_graph = tf.Graph()
 sys.path.append("..")
@@ -59,12 +59,17 @@ def detectNcrop(num_hands_detect, score_thresh, scores, boxes, im_width, im_heig
             (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
                                           boxes[i][0] * im_height, boxes[i][2] * im_height)
             
-            p1 = (int(left), int(top))
-            p2 = (int(right), int(bottom))
+            left = int(left) 
+            top = int(top)
+            right = int(right)
+            bottom = int(bottom)
+
+            p1 = (left, top)
+            p2 = (right, bottom)
 
             
             # crop_img = image_np[y:y+h, x:x+w]
-            crop_img = image_np[int(top):int(bottom), int(left):int(right)].copy()
+            crop_img = image_np[top:bottom, left:right].copy()
             cnn_img = crop_img/255.0
             
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
@@ -76,16 +81,23 @@ def detectNcrop(num_hands_detect, score_thresh, scores, boxes, im_width, im_heig
             img = np.expand_dims(img, axis=0)
 
             
-
+            ###### CNN BURADA ######
             result=loaded_model.predict_classes(img)
-            if(result[0] == 0):
-                r = "A"
-            elif(result[0] == 1):
-                r = "B"
-            elif(result[0] == 2):
-                r = "C"
 
-            cv2.imshow(r, crop_img)
+            if(result[0] == 0):
+                letter = "A"
+            elif(result[0] == 1):
+                letter = "B"
+            elif(result[0] == 2):
+                letter = "C"
+            elif(result[0] == 3):
+                letter = "D"
+            elif(result[0] == 4):
+                letter = "E"
+
+            cv2.putText(image_np, letter, (int(left), int(top)),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 0, 0), 2)
+            #cv2.imshow(r, crop_img)
             print(result)
 
             return crop_img
